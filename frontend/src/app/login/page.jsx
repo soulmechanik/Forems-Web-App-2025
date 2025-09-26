@@ -8,16 +8,16 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/loadingScreen'
+import { Suspense } from 'react';
 
-export default function LoginPage() {
+function LoginComponent() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const { status } = useSession();
   const searchParams = useSearchParams();
 
-
-   useEffect(() => {
+  useEffect(() => {
     if (status === 'authenticated') {
       router.push('/auth/redirect'); // role-based redirect page
     }
@@ -66,8 +66,6 @@ export default function LoginPage() {
     </a>
   </div>
 </div>
-
-
 
       {/* Centered login card */}
       <div className="min-h-screen flex items-center justify-center px-6 py-20">
@@ -171,5 +169,13 @@ export default function LoginPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <LoginComponent />
+    </Suspense>
   );
 }

@@ -2,6 +2,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
+
+
 
 import { ChevronLeft, ChevronRight, Download, Upload, Check, User, Briefcase, Users, FileText, AlertCircle, X, RotateCcw, Camera } from 'lucide-react';
 
@@ -1134,4 +1137,12 @@ const handleSubmit = async (e) => {
   );
 };
 
-export default RentalApplicationForm;
+
+
+const RentalApplicationFormWithSuspense = (props) => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <RentalApplicationForm {...props} />
+  </Suspense>
+);
+
+export default RentalApplicationFormWithSuspense;
