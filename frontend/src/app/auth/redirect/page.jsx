@@ -14,20 +14,13 @@ const roleConfigMap = {
   propertyManager: { emoji: "📋", color: "#8B5CF6" },
 };
 
-export default function AuthRedirect() {
+// This component will only render on the client
+function ClientAuthRedirect() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [isReady, setIsReady] = useState(false);
-
-  // Only render session-dependent content after component mounts
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
 
   useEffect(() => {
-    if (!isReady) return;
-
     let progressInterval;
 
     async function handleRedirect() {
@@ -35,7 +28,6 @@ export default function AuthRedirect() {
         setLoadingProgress((prev) => (prev >= 90 ? prev : prev + 1));
       }, 25);
 
-      // Wait until session is resolved
       if (status === "loading") return;
 
       const user = session?.user;
@@ -98,15 +90,30 @@ export default function AuthRedirect() {
     handleRedirect();
 
     return () => clearInterval(progressInterval);
-  }, [router, session, status, isReady]);
+  }, [router, session, status]);
 
-  // Show minimal loading during SSR and initial client render
-  if (!isReady) {
+  return (
+    <LoadingScreen
+      loadingProgress={loadingProgress}
+      title="🚀 Teleporting You"
+      subtitle="Hold tight... calibrating warp drive!"
+    />
+  );
+}
+
+export default function AuthRedirect() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Initializing...</p>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -115,11 +122,7 @@ export default function AuthRedirect() {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <LoadingScreen
-        loadingProgress={loadingProgress}
-        title="🚀 Teleporting You"
-        subtitle="Hold tight... calibrating warp drive!"
-      />
+      <ClientAuthRedirect />
     </>
   );
 }
