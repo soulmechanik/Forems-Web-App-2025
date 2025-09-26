@@ -1,5 +1,6 @@
-"use client";
-export const dynamic = "force-dynamic"
+// app/auth/redirect/page.js
+"use client"; // must be at the very top
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,7 +15,12 @@ const roleConfigMap = {
   propertyManager: { emoji: "📋", color: "#8B5CF6" },
 };
 
-export default function AuthRedirect() {
+export default function AuthRedirectPage() {
+  return <AuthRedirectClient />;
+}
+
+// Client-only component
+function AuthRedirectClient() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -22,6 +28,7 @@ export default function AuthRedirect() {
   useEffect(() => {
     let progressInterval;
 
+    // Only run on client
     async function handleRedirect() {
       progressInterval = setInterval(() => {
         setLoadingProgress((prev) => (prev >= 90 ? prev : prev + 1));
@@ -33,7 +40,6 @@ export default function AuthRedirect() {
       const user = session?.user;
 
       if (!user?._id) {
-        // Only show toast if user is actually unauthenticated
         if (status === "unauthenticated") {
           toast.error("You need to log in first!");
         }
@@ -59,11 +65,9 @@ export default function AuthRedirect() {
         case "agent":
           destination = "/dashboard/agent";
           break;
-        default:
-          destination = "/onboard";
       }
 
-      // Show personalized toast if role was switched
+      // Personalized toast
       const roleSwitched = sessionStorage.getItem("roleSwitched");
       if (roleSwitched) {
         const config = roleConfigMap[roleSwitched] || {};
@@ -82,7 +86,7 @@ export default function AuthRedirect() {
         sessionStorage.removeItem("roleSwitched");
       }
 
-      // Redirect to destination if needed
+      // Redirect
       if (window.location.pathname !== destination) {
         setTimeout(() => router.replace(destination), 500);
       }
