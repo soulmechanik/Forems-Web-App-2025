@@ -1,4 +1,5 @@
 'use client'
+export const dynamic = "force-dynamic";
 import React, { useState } from 'react';
 import Layout from './(component)/layout';
 import { FaNairaSign } from "react-icons/fa6";
