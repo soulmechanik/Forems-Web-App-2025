@@ -18,16 +18,15 @@ export default function AuthRedirect() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [isClient, setIsClient] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
-  // Prevent SSR issues by tracking client-side
+  // Only render session-dependent content after component mounts
   useEffect(() => {
-    setIsClient(true);
+    setIsReady(true);
   }, []);
 
   useEffect(() => {
-    // Don't run on server side
-    if (!isClient) return;
+    if (!isReady) return;
 
     let progressInterval;
 
@@ -42,7 +41,6 @@ export default function AuthRedirect() {
       const user = session?.user;
 
       if (!user?._id) {
-        // Only show toast if user is actually unauthenticated
         if (status === "unauthenticated") {
           toast.error("You need to log in first!");
         }
@@ -51,7 +49,6 @@ export default function AuthRedirect() {
         return;
       }
 
-      // Determine destination based on lastActiveRole
       let destination = "/onboard";
       switch (user.lastActiveRole) {
         case "landlord":
@@ -72,7 +69,6 @@ export default function AuthRedirect() {
           destination = "/onboard";
       }
 
-      // Show personalized toast if role was switched
       const roleSwitched = sessionStorage.getItem("roleSwitched");
       if (roleSwitched) {
         const config = roleConfigMap[roleSwitched] || {};
@@ -91,7 +87,6 @@ export default function AuthRedirect() {
         sessionStorage.removeItem("roleSwitched");
       }
 
-      // Redirect to destination if needed
       if (window.location.pathname !== destination) {
         setTimeout(() => router.replace(destination), 500);
       }
@@ -103,15 +98,15 @@ export default function AuthRedirect() {
     handleRedirect();
 
     return () => clearInterval(progressInterval);
-  }, [router, session, status, isClient]);
+  }, [router, session, status, isReady]);
 
-  // Show minimal content during SSR
-  if (!isClient) {
+  // Show minimal loading during SSR and initial client render
+  if (!isReady) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">Initializing...</p>
         </div>
       </div>
     );
