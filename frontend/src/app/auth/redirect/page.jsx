@@ -1,6 +1,5 @@
-// app/auth/redirect/page.js
-"use client"; // must be at the very top
-export const dynamic = "force-dynamic";
+"use client";
+export const dynamic = "force-dynamic"
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,20 +14,23 @@ const roleConfigMap = {
   propertyManager: { emoji: "📋", color: "#8B5CF6" },
 };
 
-export default function AuthRedirectPage() {
-  return <AuthRedirectClient />;
-}
-
-// Client-only component
-function AuthRedirectClient() {
+export default function AuthRedirect() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+
+  // Prevent SSR issues by tracking client-side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
+    // Don't run on server side
+    if (!isClient) return;
+
     let progressInterval;
 
-    // Only run on client
     async function handleRedirect() {
       progressInterval = setInterval(() => {
         setLoadingProgress((prev) => (prev >= 90 ? prev : prev + 1));
@@ -40,6 +42,7 @@ function AuthRedirectClient() {
       const user = session?.user;
 
       if (!user?._id) {
+        // Only show toast if user is actually unauthenticated
         if (status === "unauthenticated") {
           toast.error("You need to log in first!");
         }
@@ -65,9 +68,11 @@ function AuthRedirectClient() {
         case "agent":
           destination = "/dashboard/agent";
           break;
+        default:
+          destination = "/onboard";
       }
 
-      // Personalized toast
+      // Show personalized toast if role was switched
       const roleSwitched = sessionStorage.getItem("roleSwitched");
       if (roleSwitched) {
         const config = roleConfigMap[roleSwitched] || {};
@@ -86,7 +91,7 @@ function AuthRedirectClient() {
         sessionStorage.removeItem("roleSwitched");
       }
 
-      // Redirect
+      // Redirect to destination if needed
       if (window.location.pathname !== destination) {
         setTimeout(() => router.replace(destination), 500);
       }
@@ -98,7 +103,19 @@ function AuthRedirectClient() {
     handleRedirect();
 
     return () => clearInterval(progressInterval);
-  }, [router, session, status]);
+  }, [router, session, status, isClient]);
+
+  // Show minimal content during SSR
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
