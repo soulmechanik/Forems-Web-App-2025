@@ -1,0 +1,13 @@
+User clicks Google Sign-In
+        ↓
+NextAuth handles login → gets Google profile
+        ↓
+Calls backend → creates/fetches user in DB → returns token
+        ↓
+NextAuth stores session cookie in browser
+        ↓
+User makes API request → cookie is sent automatically
+        ↓
+Backend middleware verifies cookie → attaches req.user
+        ↓
+Route handler executes safely → only authorized users allowed
