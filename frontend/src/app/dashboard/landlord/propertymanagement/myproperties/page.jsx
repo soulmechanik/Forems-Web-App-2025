@@ -1,4 +1,6 @@
 'use client'
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from 'react';
 import Layout from '../../(component)/layout';
 import axios from 'axios';
