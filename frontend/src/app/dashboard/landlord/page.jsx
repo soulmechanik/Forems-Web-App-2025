@@ -1,4 +1,5 @@
 'use client'
+
 export const dynamic = "force-dynamic";
 import React, { useState } from 'react';
 import Layout from './(component)/layout';
@@ -58,8 +59,9 @@ ChartJS.register(
 
 const LandlordOverview = () => {
   const [activeTimeFilter, setActiveTimeFilter] = useState('monthly');
-
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Mock user data - replace with actual session data when available
   const user = { hasCreatedBankAccount: false };
   
   // Mock data
@@ -225,8 +227,8 @@ const LandlordOverview = () => {
 
   const AlertItem = ({ title, count, icon: Icon }) => {
     return (
-      <div className="flex items-center p-3 cursor-pointer bg-gray-50  rounded-lg">
-        <div className="p-2 rounded-lg  bg-gray-200 text-gray-500">
+      <div className="flex items-center p-3 cursor-pointer bg-gray-50 rounded-lg">
+        <div className="p-2 rounded-lg bg-gray-200 text-gray-500">
           <Icon className="w-4 h-4" />
         </div>
         <div className="ml-3">
@@ -251,7 +253,7 @@ const LandlordOverview = () => {
 
   const QuickAction = ({ title, icon: Icon }) => {
     return (
-      <button className="flex flex-col cursor-pointer  items-center p-3 rounded-lg bg-gray-50 hover:bg-purple-50 transition-colors group">
+      <button className="flex flex-col cursor-pointer items-center p-3 rounded-lg bg-gray-50 hover:bg-purple-50 transition-colors group">
         <div className="p-2 rounded-lg bg-white group-hover:bg-purple-100 transition-colors mb-2">
           <Icon className="w-4 h-4 text-gray-600 group-hover:text-gray-600" />
         </div>
@@ -286,15 +288,18 @@ const LandlordOverview = () => {
               <p className="text-gray-600 mt-1 text-sm">Welcome back, here's your portfolio overview</p>
             </div>
             <div className="flex items-center space-x-3 mt-4 lg:mt-0">
-             <button onClick={() => setIsModalOpen(true)} className="px-5 py-2 bg-gradient-to-r from-purple-200 via-purple-100 to-indigo-200 text-purple-800 font-semibold text-sm rounded-lg shadow-md hover:scale-105 transition-all duration-300 cursor-pointer border border-purple-300">
-        Add Property
-      </button>
-      
-      <CreatePropertyModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        user={user} 
-      />
+              <button 
+                onClick={() => setIsModalOpen(true)} 
+                className="px-5 py-2 bg-gradient-to-r from-purple-200 via-purple-100 to-indigo-200 text-purple-800 font-semibold text-sm rounded-lg shadow-md hover:scale-105 transition-all duration-300 cursor-pointer border border-purple-300"
+              >
+                Add Property
+              </button>
+              
+              <CreatePropertyModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                user={user} 
+              />
             </div>
           </div>
 
@@ -313,7 +318,7 @@ const LandlordOverview = () => {
               icon={FaNairaSign}
             />
             <StatCard
-              title="Pending "
+              title="Pending"
               value={formatCurrency(dashboardData.pendingRent)}
               subtitle="To be collected"
               icon={CreditCard}
@@ -322,7 +327,7 @@ const LandlordOverview = () => {
               title="Expenses"
               value={formatCurrency(dashboardData.expenses)}
               subtitle="This year"
-              icon= {TrendingDownIcon}
+              icon={TrendingDownIcon}
             />
           </div>
 
@@ -436,8 +441,6 @@ const LandlordOverview = () => {
               </div>
             </div>
           </div>
-
-        
         </div>
       </div>
 
