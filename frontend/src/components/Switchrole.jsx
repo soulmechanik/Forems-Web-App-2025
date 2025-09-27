@@ -1,5 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,12 +9,16 @@ import axios from "axios";
 const ALL_ROLES = ["landlord", "tenant", "agent", "propertyManager"];
 
 export default function SwitchRoleWidget({ className = "" }) {
-  const { data: session, update } = useSession();
+  // Safely handle useSession
+  const sessionResult = useSession();
+  const session = sessionResult?.data;
+  const update = sessionResult?.update;
+
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Get current role from session
+  // Get current role from session, fallback to first role if undefined
   const currentRole = session?.user?.lastActiveRole || ALL_ROLES[0];
 
   const roleConfigMap = {
@@ -66,7 +71,7 @@ export default function SwitchRoleWidget({ className = "" }) {
         { withCredentials: true }
       );
 
-      if (res.data.user) {
+      if (res.data.user && update) {
         await update({
           ...session,
           user: {
@@ -92,6 +97,7 @@ export default function SwitchRoleWidget({ className = "" }) {
     }
   };
 
+  // --- Render ---
   return (
     <>
       <Toaster
@@ -104,13 +110,12 @@ export default function SwitchRoleWidget({ className = "" }) {
       />
 
       {/* Trigger Button */}
-    <button
-  onClick={() => setIsOpen(true)}
-  className={`px-1 py-1   font-semibold text-sm ${className}`}
->
-  Switch Role
-</button>
-
+      <button
+        onClick={() => setIsOpen(true)}
+        className={`px-1 py-1 font-semibold text-sm ${className}`}
+      >
+        Switch Role
+      </button>
 
       {/* Popup Overlay */}
       {isOpen && (
@@ -127,7 +132,9 @@ export default function SwitchRoleWidget({ className = "" }) {
             <div className="p-5">
               {/* Header */}
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-semibold text-gray-800 cursor-pointer">Switch Role</h2>
+                <h2 className="text-lg font-semibold text-gray-800 cursor-pointer">
+                  Switch Role
+                </h2>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-1 rounded-full hover:bg-white/50 transition-colors duration-200"
@@ -139,26 +146,39 @@ export default function SwitchRoleWidget({ className = "" }) {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
 
               {/* Forems Best Feature text */}
-              <p className="text-xs text-gray-500 mb-3 font-medium">Forems Best Feature</p>
+              <p className="text-xs text-gray-500 mb-3 font-medium">
+                Forems Best Feature
+              </p>
 
               {/* Current Role */}
               <div className="mb-4 p-3 bg-white/50 rounded-lg border border-white/30">
                 <p className="text-xs text-gray-500 mb-1">Current View</p>
                 <div className="flex items-center">
-                  <span className="text-xl mr-2">{roleConfigMap[currentRole]?.emoji}</span>
-                  <span className="font-medium text-gray-800 text-sm">{roleConfigMap[currentRole]?.label}</span>
+                  <span className="text-xl mr-2">
+                    {roleConfigMap[currentRole]?.emoji}
+                  </span>
+                  <span className="font-medium text-gray-800 text-sm">
+                    {roleConfigMap[currentRole]?.label}
+                  </span>
                 </div>
               </div>
 
               {/* Role Selection */}
               <div>
-                <p className="text-xs text-gray-600 mb-2">Select a different role to switch to:</p>
+                <p className="text-xs text-gray-600 mb-2">
+                  Select a different role to switch to:
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   {ALL_ROLES.filter((r) => r !== currentRole).map((role) => {
                     const config = roleConfigMap[role];
@@ -170,7 +190,9 @@ export default function SwitchRoleWidget({ className = "" }) {
                         className="flex items-center p-2.5 rounded-xl bg-white/50 border border-white/30 hover:bg-white/80 transition-all duration-300 hover:shadow-sm cursor-pointer"
                       >
                         <span className="text-xl mr-2">{config.emoji}</span>
-                        <span className="text-left flex-1 font-medium text-gray-800 text-sm">{config.label}</span>
+                        <span className="text-left flex-1 font-medium text-gray-800 text-sm">
+                          {config.label}
+                        </span>
                         {loading && (
                           <svg
                             className="animate-spin h-3 w-3 text-purple-500"
@@ -178,7 +200,14 @@ export default function SwitchRoleWidget({ className = "" }) {
                             fill="none"
                             viewBox="0 0 24 24"
                           >
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
                             <path
                               className="opacity-75"
                               fill="currentColor"
@@ -196,6 +225,7 @@ export default function SwitchRoleWidget({ className = "" }) {
         </div>
       )}
 
+      {/* Global Styles */}
       <style jsx global>{`
         @keyframes popup-in {
           0% { opacity: 0; transform: translateY(20px) scale(0.95); }
