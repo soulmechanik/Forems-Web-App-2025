@@ -1,14 +1,16 @@
-"use client";
-export const dynamic = "force-dynamic";
+'use client';
 
 import { Suspense } from "react";
+import { SessionProvider } from 'next-auth/react';
 import Loading from "@/components/loadingScreen";
-import LoginComponent from "./LoginComponent"; // move your LoginComponent to a separate file
+import LoginComponent from "./LoginComponent";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <LoginComponent />
-    </Suspense>
+    <SessionProvider>
+      <Suspense fallback={<Loading />}>
+        <LoginComponent />
+      </Suspense>
+    </SessionProvider>
   );
 }
