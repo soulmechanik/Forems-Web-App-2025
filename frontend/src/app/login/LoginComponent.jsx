@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import Loading from '@/components/loadingScreen'
 import { Suspense } from 'react';
 
-function LoginComponent() {
+export default function LoginComponent() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
